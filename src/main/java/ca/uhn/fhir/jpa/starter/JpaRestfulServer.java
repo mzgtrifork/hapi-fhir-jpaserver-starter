@@ -10,6 +10,7 @@ import ca.uhn.fhir.jpa.api.config.DaoConfig;
 import ca.uhn.fhir.jpa.api.dao.DaoRegistry;
 import ca.uhn.fhir.jpa.api.dao.IFhirSystemDao;
 import ca.uhn.fhir.jpa.interceptor.CascadingDeleteInterceptor;
+import ca.uhn.fhir.jpa.packages.IgInstaller;
 import ca.uhn.fhir.jpa.provider.GraphQLProvider;
 import ca.uhn.fhir.jpa.provider.JpaConformanceProviderDstu2;
 import ca.uhn.fhir.jpa.provider.JpaSystemProviderDstu2;
@@ -42,6 +43,9 @@ import java.util.TreeSet;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Meta;
+import org.hl7.fhir.utilities.cache.NpmPackage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.cors.CorsConfiguration;
@@ -52,6 +56,8 @@ import java.util.Collections;
 import java.util.Set;
 
 public class JpaRestfulServer extends RestfulServer {
+
+  private static final Logger ourLog = LoggerFactory.getLogger(JpaRestfulServer.class);
 
   private static final long serialVersionUID = 1L;
 
@@ -321,6 +327,24 @@ public class JpaRestfulServer extends RestfulServer {
             registerProvider(appCtx.getBean(BulkDataExportProvider.class));
         }
 
+    installIg(appCtx.getBean(IgInstaller.class));
+  }
+
+  private void installIg(IgInstaller igInstaller) {
+    String url = HapiProperties.getMyImplementationGuideURL();
+    String id = HapiProperties.getMyImplementationGuideID();
+    String ver = HapiProperties.getMyImplementationGuideVersion();
+    NpmPackage ig = null;
+
+    if (url != null && !url.isEmpty()) {
+      if (id != null && !id.isEmpty()) {
+        ourLog.warn("Only one of myImplementationGuideURL and myImplementationGuideID " +
+          "should be set. Using {} to fetch implementation guide", url);
+      }
+      igInstaller.install(url);
+    } else if (id != null && !id.isEmpty()) {
+      igInstaller.install(id, ver);
     }
+  }
 
 }

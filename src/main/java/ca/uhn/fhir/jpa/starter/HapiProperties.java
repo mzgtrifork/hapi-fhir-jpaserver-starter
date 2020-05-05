@@ -76,6 +76,9 @@ public class HapiProperties {
   static final String CROSS_PARTITION_REFERENCE_MODE = "NOT_ALLOWED";
   static final String INCLUDE_PARTITION_IN_SEARCH_HASHES = "true";
   static final String PARTITIONING_ENABLED = "false";
+  static final String IMPLEMENTATION_GUIDE_URL = "implementation.guide.url";
+  static final String IMPLEMENTATION_GUIDE_ID = "implementation.guide.id";
+  static final String IMPLEMENTATION_GUIDE_VERSION = "implementation.guide.version";
   private static Properties ourProperties;
 
   public static boolean isElasticSearchEnabled() {
@@ -499,6 +502,18 @@ public class HapiProperties {
 
   public static Boolean getPartitioningEnabled() {
     return HapiProperties.getBooleanProperty(PARTITIONING_ENABLED, false);
+  }
+
+  public static String getMyImplementationGuideURL() {
+    return HapiProperties.getProperty(IMPLEMENTATION_GUIDE_URL);
+  }
+
+  public static String getMyImplementationGuideID() {
+    return HapiProperties.getProperty(IMPLEMENTATION_GUIDE_ID);
+  }
+
+  public static String getMyImplementationGuideVersion() {
+    return HapiProperties.getProperty(IMPLEMENTATION_GUIDE_VERSION);
   }
 }
 
