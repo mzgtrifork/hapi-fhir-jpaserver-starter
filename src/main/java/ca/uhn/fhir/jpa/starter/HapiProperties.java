@@ -73,6 +73,9 @@ public class HapiProperties {
   static final String BULK_EXPORT_ENABLED = "bulk.export.enabled";
   static final String EXPIRE_SEARCH_RESULTS_AFTER_MINS = "retain_cached_searches_mins";
   static final String MAX_BINARY_SIZE = "max_binary_size";
+  static final String CROSS_PARTITION_REFERENCE_MODE = "NOT_ALLOWED";
+  static final String INCLUDE_PARTITION_IN_SEARCH_HASHES = "true";
+  static final String PARTITIONING_ENABLED = "false";
   private static Properties ourProperties;
 
   public static boolean isElasticSearchEnabled() {
@@ -484,6 +487,18 @@ public class HapiProperties {
 
   public static boolean getBulkExportEnabled() {
     return HapiProperties.getBooleanProperty(BULK_EXPORT_ENABLED, true);
+  }
+
+  public static String getCrossPartitionReferenceMode() {
+    return HapiProperties.getProperty(CROSS_PARTITION_REFERENCE_MODE);
+  }
+
+  public static boolean getIncludePartitionInSearchHashes() {
+    return HapiProperties.getBooleanProperty(INCLUDE_PARTITION_IN_SEARCH_HASHES, true);
+  }
+
+  public static Boolean getPartitioningEnabled() {
+    return HapiProperties.getBooleanProperty(PARTITIONING_ENABLED, false);
   }
 }
 

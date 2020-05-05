@@ -1,17 +1,23 @@
 package ca.uhn.fhir.jpa.starter;
 
+import ca.uhn.fhir.jpa.api.config.DaoConfig;
 import ca.uhn.fhir.jpa.binstore.DatabaseBlobBinaryStorageSvcImpl;
 import ca.uhn.fhir.jpa.binstore.IBinaryStorageSvc;
-import ca.uhn.fhir.jpa.dao.DaoConfig;
+import ca.uhn.fhir.jpa.model.config.PartitionSettings;
 import ca.uhn.fhir.jpa.model.entity.ModelConfig;
-import ca.uhn.fhir.jpa.subscription.module.channel.SubscriptionDeliveryHandlerFactory;
-import ca.uhn.fhir.jpa.subscription.module.subscriber.email.IEmailSender;
-import ca.uhn.fhir.jpa.subscription.module.subscriber.email.JavaMailEmailSender;
+import ca.uhn.fhir.jpa.subscription.channel.impl.LinkedBlockingChannelFactory;
+import ca.uhn.fhir.jpa.subscription.channel.subscription.SubscriptionChannelFactory;
+import ca.uhn.fhir.jpa.subscription.channel.subscription.SubscriptionDeliveryHandlerFactory;
+import ca.uhn.fhir.jpa.subscription.match.config.SubscriptionProcessorConfig;
+import ca.uhn.fhir.jpa.subscription.match.deliver.email.IEmailSender;
+import ca.uhn.fhir.jpa.subscription.match.deliver.email.JavaMailEmailSender;
+import ca.uhn.fhir.jpa.subscription.match.registry.SubscriptionRegistry;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.hl7.fhir.dstu2.model.Subscription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.thymeleaf.util.Validate;
@@ -50,9 +56,9 @@ public class FhirServerConfigCommon {
   private Boolean emailStartTlsEnable = HapiProperties.getEmailStartTlsEnable();
   private Boolean emailStartTlsRequired = HapiProperties.getEmailStartTlsRequired();
   private Boolean emailQuitWait = HapiProperties.getEmailQuitWait();
-
-  @Autowired
-  private SubscriptionDeliveryHandlerFactory mySubscriptionDeliveryHandlerFactory;
+  private String myCrossPartitionReferenceMode = HapiProperties.getCrossPartitionReferenceMode();
+  private Boolean myIncludePartitionInSearchHashes = HapiProperties.getIncludePartitionInSearchHashes();
+  private Boolean myPartitioningEnabled = HapiProperties.getPartitioningEnabled();
 
   public FhirServerConfigCommon() {
     ourLog.info("Server configured to " + (this.allowContainsSearches ? "allow" : "deny") + " contains searches");
@@ -82,6 +88,11 @@ public class FhirServerConfigCommon {
     if (this.subscriptionEmailEnabled) {
       ourLog.info("Email subscriptions enabled");
     }
+  }
+
+  @Bean
+  public SubscriptionChannelFactory subscriptionChannelFactory() {
+    return new SubscriptionChannelFactory(new LinkedBlockingChannelFactory());
   }
 
   /**
@@ -182,8 +193,13 @@ public class FhirServerConfigCommon {
     return binaryStorageSvc;
   }
 
+  @Bean
+  public SubscriptionDeliveryHandlerFactory mySubscriptionDeliveryHandlerFactory() {
+    return new SubscriptionDeliveryHandlerFactory();
+  }
+
   @Bean()
-  public IEmailSender emailSender() {
+  public IEmailSender emailSender(SubscriptionDeliveryHandlerFactory mySubscriptionDeliveryHandlerFactory) {
     if (this.emailEnabled) {
       JavaMailEmailSender retVal = new JavaMailEmailSender();
 
@@ -206,4 +222,21 @@ public class FhirServerConfigCommon {
 
     return null;
   }
+
+  @Bean
+  public PartitionSettings partitionSettings() {
+    PartitionSettings settings = new PartitionSettings();
+    // todo : better implement valueOf in CrossPartitionReferenceMode
+    if (PartitionSettings.CrossPartitionReferenceMode.NOT_ALLOWED.toString().equals(myCrossPartitionReferenceMode)) {
+      settings.setAllowReferencesAcrossPartitions(PartitionSettings.CrossPartitionReferenceMode.NOT_ALLOWED);
+    }
+    if (PartitionSettings.CrossPartitionReferenceMode.ALLOWED_UNQUALIFIED.toString().equals(myCrossPartitionReferenceMode)) {
+      settings.setAllowReferencesAcrossPartitions(PartitionSettings.CrossPartitionReferenceMode.ALLOWED_UNQUALIFIED);
+    }
+    settings.setIncludePartitionInSearchHashes(myIncludePartitionInSearchHashes);
+    settings.setPartitioningEnabled(myPartitioningEnabled);
+    return settings;
+  }
+
+
 }
