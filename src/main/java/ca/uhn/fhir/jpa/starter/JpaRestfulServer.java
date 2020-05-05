@@ -327,8 +327,12 @@ public class JpaRestfulServer extends RestfulServer {
             registerProvider(appCtx.getBean(BulkDataExportProvider.class));
         }
 
-    installIg(appCtx.getBean(IgInstaller.class));
+    if (!igInstalled) {
+      installIg(appCtx.getBean(IgInstaller.class));
+    }
   }
+
+  private static boolean igInstalled = false;
 
   private void installIg(IgInstaller igInstaller) {
     String url = HapiProperties.getMyImplementationGuideURL();
@@ -345,6 +349,7 @@ public class JpaRestfulServer extends RestfulServer {
     } else if (id != null && !id.isEmpty()) {
       igInstaller.install(id, ver);
     }
+    igInstalled = true;
   }
 
 }
