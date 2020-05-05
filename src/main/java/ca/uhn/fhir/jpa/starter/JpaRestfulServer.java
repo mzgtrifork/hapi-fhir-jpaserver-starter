@@ -320,6 +320,7 @@ public class JpaRestfulServer extends RestfulServer {
       DaoConfig config = appCtx.getBean(DaoConfig.class);
       config.setBundleTypesAllowedForStorage(
           Collections.unmodifiableSet(new TreeSet<>(allowedBundleTypes)));
+      config.setTreatReferencesAsLogical(HapiProperties.getTreatReferencesAsLogical());
     }
   
         // Bulk Export

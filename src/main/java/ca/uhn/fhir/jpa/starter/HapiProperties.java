@@ -13,10 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
@@ -79,6 +76,7 @@ public class HapiProperties {
   static final String IMPLEMENTATION_GUIDE_URL = "implementation.guide.url";
   static final String IMPLEMENTATION_GUIDE_ID = "implementation.guide.id";
   static final String IMPLEMENTATION_GUIDE_VERSION = "implementation.guide.version";
+  static final String TREAT_REFERENCES_AS_LOGICAL = "treat.references.as.logical";
   private static Properties ourProperties;
 
   public static boolean isElasticSearchEnabled() {
@@ -514,6 +512,10 @@ public class HapiProperties {
 
   public static String getMyImplementationGuideVersion() {
     return HapiProperties.getProperty(IMPLEMENTATION_GUIDE_VERSION);
+  }
+
+  public static Set<String> getTreatReferencesAsLogical() {
+    return new HashSet<String>(Arrays.asList(HapiProperties.getProperty(TREAT_REFERENCES_AS_LOGICAL).split(",")));
   }
 }
 
