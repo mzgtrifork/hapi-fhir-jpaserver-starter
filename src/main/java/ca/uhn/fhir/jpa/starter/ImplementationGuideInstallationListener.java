@@ -1,6 +1,7 @@
 package ca.uhn.fhir.jpa.starter;
 
 import ca.uhn.fhir.jpa.packages.IgInstallerSvc;
+import ca.uhn.fhir.jpa.packages.ImplementationGuideInstallationException;
 import org.hl7.fhir.utilities.cache.NpmPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +16,14 @@ public class ImplementationGuideInstallationListener implements ApplicationListe
   @Autowired
   private IgInstallerSvc igInstaller;
 
+  private boolean installed = false;
+
   @Override
   public void onApplicationEvent(ContextRefreshedEvent event) {
-    installIg();
+    if (!installed) {
+      installIg();
+      installed = true;
+    }
   }
 
   private void installIg() {

@@ -15,10 +15,8 @@ import ca.uhn.fhir.jpa.subscription.match.registry.SubscriptionRegistry;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.hl7.fhir.dstu2.model.Subscription;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.*;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.thymeleaf.util.Validate;
 
@@ -239,6 +237,7 @@ public class FhirServerConfigCommon {
   }
 
   @Bean
+  @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
   public ImplementationGuideInstallationListener implementationGuideInstallationListener() {
     return new ImplementationGuideInstallationListener();
   }
