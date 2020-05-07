@@ -238,5 +238,9 @@ public class FhirServerConfigCommon {
     return settings;
   }
 
+  @Bean
+  public ImplementationGuideInstallationListener implementationGuideInstallationListener() {
+    return new ImplementationGuideInstallationListener();
+  }
 
 }
